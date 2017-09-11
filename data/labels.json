@@ -1,0 +1,8 @@
+{
+	"user1": {
+		"label1" : {
+			"createdBy" : "user1",
+			"tasks" :["1"]
+		}
+	}
+}

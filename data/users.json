@@ -1,0 +1,30 @@
+{
+	"user1": {
+		"id": "user1",
+		"password": "345",
+		"first_name": "first_name1",
+		"last_name": "last_name1",
+		"email": "user1@gmail.com"
+	},
+	"user4": {
+		"id": "user4",
+		"password": "123",
+		"email": "user4@gmail.com",
+		"first_name": "first_name4",
+		"last_name": "last_name4"
+	},
+	"user2": {
+		"email": "user2@gmail.com",
+		"first_name": "first_name2",
+		"last_name": "last_name2",
+		"id": "user2",
+		"password": "123"
+	},
+	"user3": {
+		"id": "user3",
+		"password": "123",
+		"email": "user3@gmail.com",
+		"first_name": "first_name3",
+		"last_name": "last_name3"
+	}
+}
