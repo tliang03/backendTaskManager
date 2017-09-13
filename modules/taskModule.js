@@ -41,7 +41,7 @@ var _getTaskIds = function(lids){
 				idStr += '(';
 			}
 			idStr +='taskId:' + id;
-		}
+		});
 		idStr +=')';
 	} else {
 		idStr += 'taskId: '+ lids[0];

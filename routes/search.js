@@ -15,21 +15,21 @@ search.route('/user/:uid')
 //task search
 taskRouter.route('/')
 	.get(searchCtl.findAllTasks);
-taskRouter.route('/id/:tid')
+taskRouter.route('/id/:uid/:tid')
 	.get(searchCtl.findTaskById);
-taskRouter.route('/keyword/:keyword')
+taskRouter.route('/keyword/:uid/:keyword')
 	.get(searchCtl.findTaskByKeyword);
-taskRouter.route('/label/:lid')
+taskRouter.route('/label/:uid/:lid')
 	.get(searchCtl.findTaskByLabelId);
 
 //label search
-labelsRouter.route('/')
+labelsRouter.route('/:uid')
 	.get(searchCtl.findAllLabels);
-labelsRouter.route('/id/:lid')
+labelsRouter.route('/id/:uid/:lid')
 	.get(searchCtl.findLabelById);
-labelsRouter.route('/keyword/:keyword')
+labelsRouter.route('/keyword/:uid/:keyword')
 	.get(searchCtl.findLabelsByKeyword);
-labelsRouter.route('/task/:tid')
+labelsRouter.route('/task/:uid/:tid')
 	.get(searchCtl.findLabelsByTaskId);
 
 

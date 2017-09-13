@@ -1,14 +1,14 @@
 var taskModule = require('../modules/taskModule');
 var userModule = require('../modules/userModule');
 var labelModule = require('../modules/labelModule');
-var mapperlModule = require('../modules/labelLabelMapperModule');
+var mapperlModule = require('../modules/taskLabelMapperModule');
 var errorHandler = require('../utils/errorhandler');
 
 /****************************************
 	Section: Functions to find tasks
 ****************************************/
 var findAllTasks = function(req, res){
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	try{
 		if(uid) {
 			taskModule.findAllTasks(uid).then(function(tasks){
@@ -26,7 +26,7 @@ var findAllTasks = function(req, res){
 };
 
 var findTaskById = function(req, res){
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	var tid = req.params.tid ? req.params.tid.split(',') : null;
 	try{
 		if(uid && tid) {
@@ -45,7 +45,7 @@ var findTaskById = function(req, res){
 };
 
 var findTaskByKeyword = function(req, res) {
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	var keyword = req.params.keyword;
 	try{
 		if(uid && keyword) {
@@ -64,7 +64,7 @@ var findTaskByKeyword = function(req, res) {
 };
 
 var findTaskByLabelId = function(req, res) {
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	var lid = req.params.lid;
 	try{
 		if(uid && lid) {
@@ -102,7 +102,7 @@ var findUserById = function(req, res){
 	Section: Functions to find labels
 ****************************************/
 var findAllLabels = function(req, res){
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	try{
 		if(uid) {
 			labelModule.findAllLabels(uid).then(function(labels){
@@ -120,7 +120,7 @@ var findAllLabels = function(req, res){
 };
 
 var findLabelById = function(req, res){
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	var lid = req.params.lid ? req.params.lid.split(','): null;
 	try{
 		if(uid && lid) {
@@ -139,7 +139,7 @@ var findLabelById = function(req, res){
 };
 
 var findLabelsByKeyword = function(req, res) {	
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	var keyword = req.params.keyword;
 	try{
 		if(uid && keyword) {
@@ -158,7 +158,7 @@ var findLabelsByKeyword = function(req, res) {
 };
 
 var findLabelsByTaskId = function(req, res) {	
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	var tid = req.params.tid;
 	try{
 		if(uid && tid) {
@@ -186,5 +186,8 @@ module.exports = {
 	findAllLabels: findAllLabels,
 
 	findTaskByKeyword: findTaskByKeyword,	
-	findLabelsByKeyword: findLabelsByKeyword
+	findLabelsByKeyword: findLabelsByKeyword,
+
+	findTaskByLabelId: findTaskByLabelId,
+	findLabelsByTaskId: findLabelsByTaskId
 }

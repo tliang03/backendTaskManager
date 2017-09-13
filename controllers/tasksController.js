@@ -1,9 +1,9 @@
 var taskModule = require('../modules/taskModule');
-var mapperlModule = require('../modules/labelLabelMapperModule');
+var mapperlModule = require('../modules/taskLabelMapperModule');
 var errorHandler = require('../utils/errorhandler');
 
 var addTask = function(req, res){
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	var taskObj = req.body || null;
 	try{
 		if(uid && taskObj) {
@@ -30,7 +30,7 @@ var addTask = function(req, res){
 };
 
 var deleteTask = function(req, res) {
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	var tid = req.params.tid;
 	try{
 		if(uid && tid) {
@@ -53,7 +53,7 @@ var deleteTask = function(req, res) {
 };
 
 var updateTask = function(req, res) {
-	var uid = req.query.uid;
+	var uid = req.params.uid;
 	var tid = req.params.tid;
 	var taskObj = req.body || null;
 	try{

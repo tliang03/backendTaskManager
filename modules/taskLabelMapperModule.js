@@ -36,7 +36,7 @@ var _getIdStr = function(field, ids){
 				idStr += '(';
 			}
 			idStr += field + ':' + id;
-		}
+		});
 		idStr +=')';
 	} else {
 		idStr += field + ':' + ids[0];
@@ -110,8 +110,8 @@ var findTasksByLabelId = function(uid, lid) {
 };
 
 module.exports = {
-	addLabelToTask: addLabelToTask,
-	deleteLabelFromTask: deleteLabelFromTask,
+	addLabelsToTask: addLabelsToTask,
+	deleteLabelsFromTask: deleteLabelsFromTask,
 	deleteLabel: deleteLabel,
 	deleteTask: deleteTask,
 	findLabelsByTaskId: findLabelsByTaskId,

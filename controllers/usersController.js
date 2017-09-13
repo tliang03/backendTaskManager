@@ -22,7 +22,7 @@ var createUser = function(req, res){
 
 var updateUser = function(req, res){
 	var userObj = req.body || {};
-	var userId = req.params.id;
+	var userId = req.params.uid;
 	try{
 		if(userId){
 			userModule.updateUserById(userId, userObj).then(function(){

@@ -24,7 +24,7 @@ var _createResponse = function(hits) {
 };
 
 var _getLabelIds = function(lids){
-	var idStr = ''
+	var idStr = '';
 	if(lids.length >1) {
 		lids.forEach(function(id, index){
 			if(index !==0){
@@ -33,7 +33,7 @@ var _getLabelIds = function(lids){
 				idStr += '(';
 			}
 			idStr +='labelId:' + id;
-		}
+		});
 		idStr +=')';
 	} else {
 		idStr += 'labelId: '+ lids[0];
