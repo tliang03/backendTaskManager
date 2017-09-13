@@ -9,7 +9,7 @@ search.use('/task', taskRouter);
 search.use('/label', labelsRouter);
 
 //user search
-search.route('/user')
+search.route('/user/:uid')
 	.get(searchCtl.findUserById);
 
 //task search
