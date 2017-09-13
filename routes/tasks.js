@@ -7,7 +7,7 @@ tasks.route('/:tid')
 tasks.route('/update/:tid')
 	.post(tasksCtl.updateTask);
 
-tasks.route('/add')
+tasks.route('/create')
 	.post(tasksCtl.addTask);
 
 
