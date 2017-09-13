@@ -19,7 +19,7 @@ taskRouter.route('/id/:tid')
 	.get(searchCtl.findTaskById);
 taskRouter.route('/keyword/:keyword')
 	.get(searchCtl.findTaskByKeyword);
-labelsRouter.route('/label/:lid')
+taskRouter.route('/label/:lid')
 	.get(searchCtl.findTaskByLabelId);
 
 //label search
