@@ -1,171 +1,137 @@
-var Util = require('../utils/util');
+var ES = require('../utils/esquery');
 
-var fileName = 'tasks.json';
-
-
-var _getAllTasks = function(allTasks, userId, taskId) {
-	var response = [];
-	if (userId in allTasks) {
-		if(taskId) {
-			var userTasks = allTasks[userId];
-			for(var i =0; i< userTasks.length; i++){
-				if(userTasks[i].id === taskId) {
-					response.push(userTasks[i]);
-				}
-			}
-		} else {
-			response = allTasks[userId];
-		}
-	}
-	return response;
-};
-
-var _getTasksByKeywords = function(allTasks, userId, keywrod) {
-	var response = [];
-	keywrod = keywrod.toLowerCase();
-	if (userId in allTasks) {
-		var userTasks = allTasks[userId];
-		for(var i =0; i< userTasks.length; i++){
-			var description = userTasks[i].description.toLowerCase();
-			var content = userTasks[i].content.toLowerCase();
-
-			if(description.indexOf(keywrod)>=0){
-				response.push(userTasks[i]);
-			} else if(content.indexOf(keywrod)>=0) {
-				response.push(userTasks[i]);
-			}
-		}
-	}
-	return response;
-};
-
-var _findNextTaskId = function(allTasks, userId){
-	var maxIndex = -1;
-	if (userId in allTasks) {
-		var userTasks = allTasks[userId];
-		for(var i=0; i<userTasks.length; i++) {
-			var tid = parseInt(userTasks[i].id);
-			maxIndex = Math.max(maxIndex, tid);
-		}
-		return maxIndex+1;
-	} else {
-		return null;
-	}
-};
+var doctype = 'tasks';
 
 var _createTaskObj = function(uid, tid, task) {
 	var obj = {};
-	obj.createdBy = uid;
+	obj.userId = uid;
 	obj.description = task.description || '';
 	obj.content = task.content || '';
-	if(tid){
-		obj['id'] = tid.toString();
-	} else {
-		obj['id'] = '0';
-	}
+	obj.taskId = tid;
 	return obj;
 };
 
-var findTask = function(userId, taskId) {
-	return Util.readFile(fileName).then(function(allTasks){
-		try{
-			return _getAllTasks(allTasks, userId, taskId);
-		} catch(e) {
-			throw e;
-		}
-	}, function(e){
-		throw e;
+var _createResponse = function(hits) {
+	var response = [];
+	hits.forEach(function(hit){
+		var obj = {};
+		var source = hit['_source'];
+		obj.userId = source['userId'];
+		obj.description = source['description'];
+		obj.content = source['content'];
+		obj.taskId = source['taskId'];
+		response.push(obj);
 	});
+	return response;
 };
 
-var findByKeyword = function(userId, keywrod) {
-	return Util.readFile(fileName).then(function(allTasks){
-		try{
-			return _getTasksByKeywords(allTasks, userId, keywrod);
-		} catch(e) {
-			throw e;
-		}	
-	}, function(e){	
-		throw e;
-	});
+var _findNextIndex = function(uid){
+	var queryBody = ES.createBody('userId: ' + uid, 0);
+	queryBody.aggs = ES.createAgg('max', 'taskId');
+	return ES.search(doctype, queryBody);
 };
 
-var addTask = function(userId, taskObj) {
-	return Util.readFile(fileName).then(function(allTasks){
-		try{			
-			var id = _findNextTaskId(allTasks, userId);
-			var tObj = _createTaskObj(userId, id, taskObj);
-			if(userId in allTasks) {
-				allTasks[userId].push(tObj);
+var _getTaskIds = function(lids){
+	var idStr = ''
+	if(lids.length >1) {
+		lids.forEach(function(id, index){
+			if(index !==0){
+				idStr+= ' OR ';
 			} else {
-				allTasks[userId] = [tObj];
-			}   
-			return Util.updateToFile(fileName, allTasks);
-		} catch(e) {
-			throw e;
-		}
-	}, function(e){
-		throw e;
-	});
-};
-
-var deleteTask = function(userId, taskId) {
-	return Util.readFile(fileName).then(function(allTasks){
-			if(userId in allTasks) {
-				var rmIndex = -1;
-				allTasks[userId].some(function(taskObj, index){
-					if(taskObj.id === taskId) {
-						rmIndex = index;
-						return true;
-					}
-				});
-				if(rmIndex !== -1){
-					allTasks[userId].splice(rmIndex, 1);
-					return Util.updateToFile(fileName, allTasks);
-				} else {
-					return Promise.resolve();
-				}
-				
-			} else {
-				return Promise.resolve();
+				idStr += '(';
 			}
-			
-	}, function(e){
-		throw e;
-	});
-};
-
-var updateTask = function(userId, taskId, task) {
-	if(Util.isEmptyObj(task)){
-		return Promise.resolve();
+			idStr +='taskId:' + id;
+		}
+		idStr +=')';
+	} else {
+		idStr += 'taskId: '+ lids[0];
 	}
-	return Util.readFile(fileName).then(function(allTasks){
-		if(uid in allTasks) {
-			var id = -1;
-			allTasks[uid].some(function(taskObj, index){
-				if(taskObj.id === taskId){
-					id = index;
-					taskObj.description = task.description || taskObj.description;
-					taskObj.content = task.content || taskObj.content;
-					return true;
-				}
-			});
-			if(id !== -1) {
-				return Util.updateToFile(fileName, allTasks);
-			} else {
-				return Promise.resolve();
-			}
+	return idStr;
+};
+
+var addTask = function(uid, taskObj) {
+	return _findNextIndex(uid).then(function(res){
+		try{			
+			var obj = ES.parseAggsResponse(res);
+			var tid = obj.value !== null ? obj.value +1 : 0;			
+			var fieldId = uid + '_' + tid;
 			
+			return ES.create(doctype, fieldId, _createTaskObj(uid, tid, taskObj)); 
+		} catch(e) {
+			return Promise.reject(e);
 		}
 	}, function(e){
+		return Promise.reject(e);
+	}).then(function(res){
+		return Promise.resolve(tid);
+	}, function(e){
+		return Promise.reject(e);
+	});
+};
 
+var deleteTask = function(uid, tid) {
+	var queryStr = 'userId:'+ uid + ' AND ' + 'taskId:' + tid
+	var body = ES.createBody(queryStr, 1000);
+	return ES.delete(doctype, body);
+};
+
+var updateTask = function(uid, tid, taskObj) {
+	return findTaskById(uid, tid).then(function(res){
+		try{
+			if(res && res['_id']){
+				var id = res['_id'];
+				return ES.update(doctype, id, taskObj);
+			} else {
+				return Promise.reject('User not exist in DB')
+			}
+		} catch(e) {
+			return Promise.reject(e);
+		}
+	}, function(e){
+		return Promise.reject(e);
+	});
+};
+
+var findTaskById = function(uid, tid) {
+	var queryStr = 'userId:'+ uid + ' AND ' +  _getTaskIds(tid);
+	var body = ES.createBody(queryStr, 1);
+	return ES.search(doctype, body).then(function(res){
+		var hits = res.hits.hits;
+		return Promise.resolve(_createResponse(hits));
+	}, function(e){
+		return Promise.reject(e);
+	});
+};
+
+var findAllTasks = function(uid) {
+	var queryStr = 'userId:'+ uid ;
+	var body = ES.createBody(queryStr, 1000);
+	return ES.search(doctype, body).then(function(res){
+		var hits = res.hits.hits;
+		return Promise.resolve(_createResponse(hits));
+	}, function(e){
+		return Promise.reject(e);
+	});
+};
+
+
+var findTaskByKeyword = function(uid, keyword) {
+	var queryStr = 'userId:'+ uid + ' AND ';
+	queryStr += '(content:*'+ keyword + '* OR description:*' + keyword +'*)'
+	var body = ES.createBody(queryStr, 1000);
+	return ES.search(doctype, body).then(function(res){
+		var hits = res.hits.hits;
+		return Promise.resolve(_createResponse(hits));
+	}, function(e){
+		return Promise.reject(e);
 	});
 };
 
 module.exports = {
-	addTask: addTask,
-	findTask: findTask,
-	findTaskByKeyword: findByKeyword,
+	addTask: addTask,	
 	deleteTask: deleteTask,
-	updateTask: updateTask
+	updateTask: updateTask,
+	findAllTasks: findAllTasks,
+	findTaskById: findTaskById,	
+	findTaskByKeyword: findTaskByKeyword
 }

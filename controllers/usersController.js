@@ -4,10 +4,10 @@ var errorHandler = require('../utils/errorhandler');
 var createUser = function(req, res){
 	var userObj = req.body || {};
 	try{
-		if(userObj && userObj.id){
-			var id = userObj.id;
-			userModule.addUser(userObj).then(function(id){
-				res.status(200).send(id);
+		if(userObj && userObj.uid){
+			var id = userObj.uid;
+			userModule.addUser(userObj).then(function(){
+				res.status(200).send('Successfully create user.');
 			}, function(e) {
 				errorHandler.sendErrorMsg(res, 500,  e + '-- createUser');
 			});

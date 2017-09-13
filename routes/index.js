@@ -1,8 +1,7 @@
 var users = require('./users');
 var tasks = require('./tasks');
-var search = require('./search');
 var labels = require('./labels');
-
+var search = require('./search');
 
 
 module.exports = function(app){
@@ -12,7 +11,6 @@ module.exports = function(app){
 
 	app.use('/users', users);
 	app.use('/tasks', tasks);
+	app.use('/labels', labels);
 	app.use('/search', search);
-	// app.use('/labels', labels);
-	
 }

@@ -1,16 +1,25 @@
-var taskModule = require('../modules/taskModule')
+var taskModule = require('../modules/taskModule');
+var mapperlModule = require('../modules/labelLabelMapperModule');
 var errorHandler = require('../utils/errorhandler');
 
 var addTask = function(req, res){
-	var userId = req.query.userId;
+	var uid = req.query.uid;
 	var taskObj = req.body || null;
 	try{
-		if(userId && taskObj) {
-			taskModule.addTask(userId, taskObj).then(function(tid){
-				res.status(200).send(tid);
+		if(uid && taskObj) {
+			taskModule.addTask(uid, taskObj).then(function(tid){
+				if(taskObj.labels.length){
+					return mapperlModule.addLabelsToTask(uid, tid, taskObj.labels);
+				} else {
+					return Promise.resolve();
+				}
 			}, function(e) {
 				errorHandler.sendErrorMsg(res, 500,  e + '-- addTask');
-			});
+			}).then(function(){
+				res.status(200).send('Successfully add label.');
+			}, function(e) {
+				errorHandler.sendErrorMsg(res, 500,  e + '-- addLabel');
+			});;
 		} else {
 			throw 'userId is required'
 		}
@@ -21,12 +30,16 @@ var addTask = function(req, res){
 };
 
 var deleteTask = function(req, res) {
-	var userId = req.query.userId;
-	var taskId = req.params.taskId;
+	var uid = req.query.uid;
+	var tid = req.params.tid;
 	try{
-		if(userId && taskId) {
-			taskModule.deleteTask(userId, taskId).then(function(){
-				res.status(200).send('Successfully remove task ' + taskId + ' for user ' + userId);
+		if(uid && tid) {
+			var promiseArr = [
+				taskModule.deleteTask(uid, tid),
+				mapperlModule.deleteTask(uid, tid)
+			];
+			Promise.all(promiseArr).then(function(){
+				res.status(200).send('Successfully remove task ' + tid + ' for user ' + uid);
 			}, function(e) {
 				errorHandler.sendErrorMsg(res, 500,  e + '-- deleteTask');
 			});
@@ -40,13 +53,13 @@ var deleteTask = function(req, res) {
 };
 
 var updateTask = function(req, res) {
-	var userId = req.query.userId;
-	var taskId = req.params.taskId;
+	var uid = req.query.uid;
+	var tid = req.params.tid;
 	var taskObj = req.body || null;
 	try{
-		if(userId && taskId) {
-			taskModule.updateTask(userId, taskId, taskObj).then(function(){
-				res.status(200).send('Successfully updateTask task ' + taskId + ' for user ' + userId);
+		if(uid && tid) {
+			taskModule.updateTask(uid, tid, taskObj).then(function(){
+				res.status(200).send('Successfully updateTask task ' + tid + ' for user ' + uid);
 			}, function(e) {
 				errorHandler.sendErrorMsg(res, 500,  e + '-- updateTask');
 			});

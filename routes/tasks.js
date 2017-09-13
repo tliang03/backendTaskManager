@@ -4,7 +4,7 @@ var tasksCtl = require('../controllers/tasksController');
 tasks.route('/:tid')
 	.delete(tasksCtl.deleteTask);
 
-tasks.route('/:tid')
+tasks.route('/update/:tid')
 	.post(tasksCtl.updateTask);
 
 tasks.route('/add')

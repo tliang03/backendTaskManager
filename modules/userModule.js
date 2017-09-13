@@ -1,54 +1,61 @@
-var Util = require('../utils/util');
+var ES = require('../utils/esquery');
 
-var fileName = 'users.json';
+var doctype = 'users';
 
-var find = function(id) {
-	return Util.readFile(fileName).then(function(allUsers){
-		if(id in allUsers) {
-			return allUsers[id];
-		} else {
-			throw 'No user match with the search Id. Please create a new one.'
-		}
+var _generateUserObj = function(obj){
+	return {
+		'userId': obj.uid,
+		'firstName': obj.firstName || '',
+		'lastName': obj.lastName || '',
+		'email': obj.email,
+		'password': obj.password
+	}
+};
 
+var findById = function(id) {
+	var body = ES.createBody('userId:' + id, 1000);
+	return ES.search(doctype, body).then(function(res){
+		var hits = res.hits.hits;
+		return Promise.resolve(hits);
 	}, function(e){
-		throw e;
+		return Promise.reject(e);
 	});
 };
 
-var add = function(newUser) {
-	var id = newUser.id;
-	return Util.readFile(fileName).then(function(allUsers){
-		if(id in allUsers) {
-			throw 'User already exist'
+var addUser = function(newUser) {
+	return findById(newUser.uid).then(function(res){
+		if(res.length){
+			return Promise.reject('User already exists');
+		} else {
+			return ES.create(doctype,newUser.uid, _generateUserObj(newUser));
 		}
-		allUsers[id] = newUser;
-		return Util.updateToFile(fileName, allUsers);
 	}, function(e){
-		throw e;
-	});
-	
+		return Promise.reject(e);
+	}).then(function(res){
+		return Promise.resolve();
+	}, function(e){
+		return Promise.reject(e);
+	});	
 };
 
-var update = function(id, userObj){
-	return Util.readFile(fileName).then(function(allUsers){
-		if(id && id in allUsers) {
-			for(var key in userObj) {
-				if(key !== 'id') {
-					allUsers[id][key] = userObj[key];
-				}
-			}
-			return Util.updateToFile(fileName, allUsers);
+var updateUserById = function(id, userObj){
+	return findById(id).then(function(res){
+		if(res.length){
+			return ES.update(doctype, id, userObj);
 		} else {
-			throw 'User not exist in DB'
-		}		
-		
+			return Promise.reject('User not exist in DB')
+		}
 	}, function(e){
-		throw e;
+		return Promise.reject(e);
+	}).then(function(res){
+		return Promise.resolve();
+	}, function(e){
+		return Promise.reject(e);
 	});
 }
 
 module.exports = {
-	findById: find,
-	addUser: add,
-	updateUserById: update
+	findUserById: findById,
+	addUser: addUser,
+	updateUserById: updateUserById
 }

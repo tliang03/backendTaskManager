@@ -22,14 +22,14 @@ var readFile = function(fileName){
 	});
 };
 
-var updateToFile = function(fileName, obj){
+var updateToFile = function(fileName, obj, returnObj){
 	var jsonPath = path.join(__dirname, '..', 'data', fileName);
 	return new Promise(function(resolve, reject){
 		fs.writeFile(jsonPath, JSON.stringify(obj), function(error, data){
 			if(error) {
 				reject(error);
 			}
-			resolve();
+			resolve(returnObj);
 		});
 	});
 };

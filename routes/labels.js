@@ -1,13 +1,13 @@
 const labels = require('express').Router();
 var labelsCtl = require('../controllers/labelsController');
 
-labels.route('/:tid')
-	.delete(labelsCtl.deleteTask);
+labels.route('/:lid')
+	.delete(labelsCtl.deleteLabel);
 
-labels.route('/add')
-	.post(labelsCtl.addTask);
+labels.route('/create')
+	.post(labelsCtl.addLabel);
 
-labels.route('/update')
-	.post(labelsCtl.update);
+labels.route('/update/:tid')
+	.post(labelsCtl.updateLabel);
 
 module.exports = labels;
