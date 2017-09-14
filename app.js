@@ -11,8 +11,8 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 routes(app);
 
-app.listen(5000, function(){
-	console.log("Server start listening to 5000");
+app.listen(8080, function(){
+	console.log("Server start listening to 8080");
 })
 
 
