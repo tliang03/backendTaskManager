@@ -4,7 +4,7 @@ var usersCtl = require('../controllers/usersController');
 users.route('/create')
 	.post(usersCtl.createUser);
 
-users.route('/update/:uid')
+users.route('/update')
 	.post(usersCtl.updateUser);
 
 

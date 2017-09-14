@@ -21,8 +21,8 @@ var createUser = function(req, res){
 };
 
 var updateUser = function(req, res){
-	var userObj = req.body || {};
-	var userId = req.params.uid;
+	var userObj = req.body || null;
+	var userId = userObj? userObj.uid : null;
 	try{
 		if(userId){
 			userModule.updateUserById(userId, userObj).then(function(){

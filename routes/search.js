@@ -13,7 +13,7 @@ search.route('/user/:uid')
 	.get(searchCtl.findUserById);
 
 //task search
-taskRouter.route('/')
+taskRouter.route('/:uid')
 	.get(searchCtl.findAllTasks);
 taskRouter.route('/id/:uid/:tid')
 	.get(searchCtl.findTaskById);

@@ -27,7 +27,7 @@ var findAllTasks = function(req, res){
 
 var findTaskById = function(req, res){
 	var uid = req.params.uid;
-	var tid = req.params.tid ? req.params.tid.split(',') : null;
+	var tid = req.params.tid;
 	try{
 		if(uid && tid) {
 			taskModule.findTaskById(uid, tid).then(function(tasks){
@@ -68,15 +68,22 @@ var findTaskByLabelId = function(req, res) {
 	var lid = req.params.lid;
 	try{
 		if(uid && lid) {
-			mapperlModule.findTasksByLabelId(uid, lid).then(function(tasks){
-				res.status(200).send(JSON.stringify(tasks));
+			mapperlModule.findTasksByLabelId(uid, lid).then(function(tids){
+				if(tids.length){
+					return taskModule.findTaskById(uid, tids);
+				} else {
+					return [];
+				}				
 			}, function(e) {
+				
+			}).then(function(labels){
+				res.status(200).send(JSON.stringify(labels));
+			}, function(e){
 				errorHandler.sendErrorMsg(res, 500,  e + '-- findTaskByLabelId');
 			});
 		} else {
-			throw 'userId and lid is required'
+			throw 'userId and label id are required'
 		}
-		
 	} catch(e){
 		errorHandler.sendErrorMsg(res, 500,  e + '-- findTaskByLabelId');
 	}
@@ -106,7 +113,7 @@ var findAllLabels = function(req, res){
 	try{
 		if(uid) {
 			labelModule.findAllLabels(uid).then(function(labels){
-				res.status(200).send(JSON.stringify(tasks));
+				res.status(200).send(JSON.stringify(labels));
 			}, function(e) {
 				errorHandler.sendErrorMsg(res, 500,  e + '-- findAllLabels');
 			});
@@ -125,7 +132,7 @@ var findLabelById = function(req, res){
 	try{
 		if(uid && lid) {
 			labelModule.findLabelById(uid, lid).then(function(labels){
-				res.status(200).send(JSON.stringify(tasks));
+				res.status(200).send(JSON.stringify(labels));
 			}, function(e) {
 				errorHandler.sendErrorMsg(res, 500,  e + '-- findLabelById');
 			});
@@ -162,17 +169,25 @@ var findLabelsByTaskId = function(req, res) {
 	var tid = req.params.tid;
 	try{
 		if(uid && tid) {
-			mapperlModule.findLabelsByTaskId(uid, tid).then(function(labels){
-				res.status(200).send(JSON.stringify(labels));
+			mapperlModule.findLabelsByTaskId(uid, tid).then(function(lids){
+				if(lids.length){
+					return labelModule.findLabelById(uid, lids);
+				} else {
+					return [];
+				}				
 			}, function(e) {
-				errorHandler.sendErrorMsg(res, 500,  e + '-- findLabelsByKeyword');
+				
+			}).then(function(labels){
+				res.status(200).send(JSON.stringify(labels));
+			}, function(e){
+				errorHandler.sendErrorMsg(res, 500,  e + '-- findLabelsByTaskId');
 			});
 		} else {
-			throw 'userId is required'
+			throw 'userId and taskis required'
 		}
 		
 	} catch(e){
-		errorHandler.sendErrorMsg(res, 500,  e + '-- findLabelsByKeyword');
+		errorHandler.sendErrorMsg(res, 500,  e + '-- findLabelsByTaskId');
 	}
 };
 

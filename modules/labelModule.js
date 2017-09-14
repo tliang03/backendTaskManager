@@ -10,6 +10,14 @@ var _createLabelObj = function(uid, lid, label) {
 	return obj;
 };
 
+var _getUpdateObj = function(labelObj){
+	var obj = {};
+	if(labelObj.content) {
+		obj.content = labelObj.content;
+	}
+	return obj;
+};
+
 var _createResponse = function(hits) {
 	var response = [];
 	hits.forEach(function(hit){
@@ -48,10 +56,11 @@ var _findNextIndex = function(uid){
 };
 
 var addLabel = function(uid, labelObj) {
+	var lid = null;
 	return _findNextIndex(uid).then(function(res){
 		try{			
 			var obj = ES.parseAggsResponse(res);
-			var lid = obj.value !== null ? obj.value +1 : 0;			
+			lid = obj.value !== null ? obj.value +1 : 0;			
 			var fieldId = uid + '_' + lid;
 			
 			return ES.create(doctype, fieldId, _createLabelObj(uid, lid, labelObj)); 
@@ -70,11 +79,11 @@ var deleteLabel = function(uid, lid) {
 };
 
 var updateLabel = function(uid, lid, labelObj) {
-	return findLabelById(uid, lid).then(function(res){
+	return findLabelById(uid, [lid]).then(function(res){
 		try{
-			if(res && res['_id']){
-				var id = res['_id'];
-				return ES.update(doctype, id, labelObj);
+			if(res && res.length){
+				var id = uid + '_' + lid;
+				return ES.update(doctype, id, _getUpdateObj(labelObj));
 			} else {
 				return Promise.reject('User not exist in DB');
 			}
@@ -88,7 +97,7 @@ var updateLabel = function(uid, lid, labelObj) {
 
 var findLabelById = function(uid, lid) {
 	var queryStr = 'userId:'+ uid + ' AND ' + _getLabelIds(lid);
-	var body = ES.createBody(queryStr, 1);
+	var body = ES.createBody(queryStr, 1000);
 	return ES.search(doctype, body).then(function(res){
 		var hits = res.hits.hits;
 		return Promise.resolve(_createResponse(hits));

@@ -5,6 +5,7 @@ var doctype = 'tasklabelsmapper';
 var _createLabelIdsResponse = function(hits) {
 	var response = [];
 	hits.forEach(function(hit){
+		var source = hit['_source'];
 		response.push(source['labelId']);
 	});
 	return response;
@@ -13,6 +14,7 @@ var _createLabelIdsResponse = function(hits) {
 var _createTaskIdsResponse = function(hits) {
 	var response = [];
 	hits.forEach(function(hit){
+		var source = hit['_source'];
 		response.push(source['taskId']);
 	});
 	return response;
@@ -21,8 +23,8 @@ var _createTaskIdsResponse = function(hits) {
 var _craeteMapperObj = function(uid, tid, lid){
 	return {
 		"userId": uid,
-		"taskId": tid,
-		"labelId": lid
+		"taskId": parseInt(tid),
+		"labelId": parseInt(lid)
 	}
 };
 
@@ -103,7 +105,7 @@ var findTasksByLabelId = function(uid, lid) {
 	var body = ES.createBody(queryStr, 1000);
 	return ES.search(doctype, body).then(function(res){
 		var hits = res.hits.hits;
-		return Promise.resolve(_createLabelIdsResponse(hits));
+		return Promise.resolve(_createTaskIdsResponse(hits));
 	}, function(e){
 		return Promise.reject(e);
 	});

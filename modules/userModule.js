@@ -12,11 +12,39 @@ var _generateUserObj = function(obj){
 	}
 };
 
+var _getUpdateObj = function(userObj){
+	var obj = {};
+	if(userObj.firstName) {
+		obj.firstName = userObj.firstName;
+	}
+	if(userObj.lastName) {
+		obj.lastName = userObj.lastName;
+	}
+	if(userObj.email) {
+		obj.email = userObj.email;
+	}
+	if(userObj.password) {
+		obj.password = userObj.password;
+	}
+	return obj;
+};
+
+var _createResponse = function(hits) {
+	var response = [];
+	hits.forEach(function(hit){
+		var obj = {};
+		var source = hit['_source'];
+		response.push(source);
+	});
+	return response;
+};
+
 var findById = function(id) {
 	var body = ES.createBody('userId:' + id, 1000);
+	// console.log(JSON.stringify(body))
 	return ES.search(doctype, body).then(function(res){
 		var hits = res.hits.hits;
-		return Promise.resolve(hits);
+		return Promise.resolve(_createResponse(hits));
 	}, function(e){
 		return Promise.reject(e);
 	});
@@ -41,7 +69,7 @@ var addUser = function(newUser) {
 var updateUserById = function(id, userObj){
 	return findById(id).then(function(res){
 		if(res.length){
-			return ES.update(doctype, id, userObj);
+			return ES.update(doctype, id, _getUpdateObj(userObj));
 		} else {
 			return Promise.reject('User not exist in DB')
 		}
