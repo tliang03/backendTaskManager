@@ -49,13 +49,25 @@ var _getIdStr = function(field, ids){
 //task controller / label controller
 var addLabelsToTask = function(uid, tid, lids){
 	try{
-		var promiseArr = [];
-		lids.forEach(function(lid){
-			var id = uid + '_' + tid + '_' + lid;
-			var mapperObj = _craeteMapperObj(uid, tid, lid);
-			promiseArr.push(ES.create(doctype, id, mapperObj));
-		});
-		return Promise.all(promiseArr);	
+		return findLabelsByTaskId(uid, tid).then(function(existingIds){
+				var i = 0;
+				while(i<lids.length){
+					if(existingIds.indexOf(parseInt(lids[i]))>-1){
+						lids.splice(i, 1);
+					} else {
+						i++;
+					}
+				}
+				var promiseArr = [];
+				lids.forEach(function(lid){
+					var id = uid + '_' + tid + '_' + lid;
+					var mapperObj = _craeteMapperObj(uid, tid, lid);
+					promiseArr.push(ES.create(doctype, id, mapperObj));
+				});
+				return Promise.all(promiseArr);	
+			}, function(e) {
+				return Promise.reject(e);
+			});		
 	} catch(e){
 		return Promise.reject(e);
 	}	
@@ -84,6 +96,7 @@ var deleteTask = function(uid, tid){
 	var queryStr = 'userId:'+ uid + ' AND ' + 'taskId:' + tid;
 
 	var body = ES.createBody(queryStr, 10000);
+	console.log(body)
 	return ES.delete(doctype, body);
 };
 

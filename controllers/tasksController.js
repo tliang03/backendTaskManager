@@ -80,23 +80,7 @@ var addLabelsToTask = function(req, res) {
 	var lids = (taskObj && taskObj.lids)? taskObj.lids.split(','): [];
 	try{
 		if(uid && (tid !== null) && lids.length) {
-			mapperlModule.findLabelsByTaskId(uid, tid).then(function(existingIds){
-				var i = 0;
-				while(i<lids.length){
-					if(existingIds.indexOf(parseInt(lids[i]))>-1){
-						lids.splice(i, 1);
-					} else {
-						i++;
-					}
-				}
-				return lids;
-			}, function(e) {
-				return Promise.reject(e);
-			}).then(function(newids){
-				return mapperlModule.addLabelsToTask(uid, tid, newids);
-			}, function(e) {
-				return Promise.reject(e);
-			}).then(function(){
+			mapperlModule.addLabelsToTask(uid, tid, lids).then(function(){
 				res.status(200).send('Successfully add labels to task ' + tid + ' for user ' + uid);
 			}, function(e) {
 				errorHandler.sendErrorMsg(res, 500,  e + '-- addLabelsToTask');

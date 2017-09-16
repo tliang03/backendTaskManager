@@ -49,7 +49,7 @@ var _getLabelIds = function(lids){
 	return idStr;
 };
 
-var _findNextIndex = function(uid){
+var _findLastIndex = function(uid){
 	var queryBody = ES.createBody('userId: ' + uid, 0);
 	queryBody.aggs = ES.createAgg('max', 'labelId');
 	return ES.search(doctype, queryBody);
@@ -57,7 +57,7 @@ var _findNextIndex = function(uid){
 
 var addLabel = function(uid, labelObj) {
 	var lid = null;
-	return _findNextIndex(uid).then(function(res){
+	return _findLastIndex(uid).then(function(res){
 		try{			
 			var obj = ES.parseAggsResponse(res);
 			lid = obj.value !== null ? obj.value +1 : 0;			
@@ -133,6 +133,7 @@ module.exports = {
 	addLabel: addLabel,	
 	deleteLabel: deleteLabel,
 	updateLabel: updateLabel,
+	findLastLabelIndex: _findLastIndex,
 	findAllLabels: findAllLabels,
 	findLabelById: findLabelById,
 	findLabelsByKeyword: findLabelsByKeyword

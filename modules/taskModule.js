@@ -54,7 +54,7 @@ var _getTaskIds = function(tids){
 	return idStr;
 };
 
-var _findNextIndex = function(uid){
+var _findIndex = function(uid){
 	var queryBody = ES.createBody('userId: ' + uid, 0);
 	queryBody.aggs = ES.createAgg('max', 'taskId');
 	return ES.search(doctype, queryBody);
@@ -62,7 +62,7 @@ var _findNextIndex = function(uid){
 
 var addTask = function(uid, taskObj) {
 	var tid = null;
-	return _findNextIndex(uid).then(function(res){
+	return _findIndex(uid).then(function(res){
 		try{			
 			var obj = ES.parseAggsResponse(res);
 			tid = obj.value !== null ? obj.value +1 : 0;			
@@ -148,6 +148,7 @@ module.exports = {
 	addTask: addTask,	
 	deleteTask: deleteTask,
 	updateTask: updateTask,
+	findLastTaskIndex: _findIndex,
 	findAllTasks: findAllTasks,
 	findTaskById: findTaskById,	
 	findTaskByKeyword: findTaskByKeyword
