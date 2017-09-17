@@ -10,3 +10,8 @@ Elasticsearch -- store and search data
 Mocha -- Unit test framework
 Chai -- Node assertion libary
 Chai-http -- Assertion library with tests for http apis
+
+Instruction:
+npm i -- install node_modules dependency packages
+npm start --  start application and listen 8080
+npm test -- run mocha test
