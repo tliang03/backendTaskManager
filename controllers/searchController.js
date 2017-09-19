@@ -27,7 +27,7 @@ var findAllTasks = function(req, res){
 
 var findTaskById = function(req, res){
 	var uid = req.params.uid;
-	var tid = req.params.tid;
+	var tid = req.params.tid ? req.params.tid.split(','): null;
 	try{
 		if(uid && tid) {
 			taskModule.findTaskById(uid, tid).then(function(tasks){
